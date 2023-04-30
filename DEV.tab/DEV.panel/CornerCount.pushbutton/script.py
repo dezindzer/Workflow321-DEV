@@ -53,3 +53,31 @@ components = [
 form = FlexForm("View Settings", components)
 
 viewSettings = form.show()
+
+
+
+#### CHATGPT ####
+
+from pyrevit import revit, DB
+
+doc = revit.doc
+
+rooms = DB.FilteredElementCollector(doc)\
+    .OfCategory(DB.BuiltInCategory.OST_Rooms)\
+    .WhereElementIsNotElementType()
+
+corner_count = 0
+
+tolerance = 1e-1
+
+for room in rooms:
+    room_boundary = room.GetBoundarySegments(DB.SpatialElementBoundaryOptions())
+    for boundary in room_boundary:
+        for segment in boundary:
+            start_point = segment.GetCurve().GetEndPoint(0)
+            end_point = segment.GetCurve().GetEndPoint(1)
+            # check if the start and end points are different and close to each other
+            if start_point != end_point and start_point.IsAlmostEqualTo(end_point, tolerance):
+                corner_count += 1
+
+print('Number of corners in all the rooms: ' + str(corner_count))

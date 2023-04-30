@@ -1,7 +1,6 @@
 from pyrevit import revit, DB
 from pyrevit.revit.db import query
-from pyrevit.framework import List, Guid
-#from System import Guid
+from pyrevit.framework import Guid
 
 curtainWall= DB.FilteredElementCollector(revit.doc).WhereElementIsNotElementType().OfCategory(DB.BuiltInCategory.OST_CurtainWallPanels).ToElements()
 curtainDoor = DB.FilteredElementCollector(revit.doc).WhereElementIsNotElementType().OfCategory(DB.BuiltInCategory.OST_Doors).ToElements()
