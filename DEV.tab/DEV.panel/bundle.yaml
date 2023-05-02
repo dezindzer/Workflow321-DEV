@@ -14,6 +14,7 @@ layout:
   - CornerCount
   - Kotiranje
   - ShortenRibbonNames
+  - DeleteFamilyParameters
   - TestCoskovi
   - test
   - -----
