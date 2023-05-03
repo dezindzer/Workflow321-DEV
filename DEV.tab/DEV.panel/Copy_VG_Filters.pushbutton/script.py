@@ -1,45 +1,16 @@
 # -*- coding: utf-8 -*-
-# pylint: skip-file
-import clr
 import os
 import os.path as op
 import pickle as pl
-
-from System.Collections.Generic import List
 from Autodesk.Revit.DB import *
+from pyrevit import script, revit
+from pyrevit.forms import SelectFromList
+from pyrevit.revit import doc, uidoc, selection
+output = script.get_output()
+logger = script.get_logger()
+linkify = output.linkify
+selection = selection.get_selection()
 
-from pyrevit import versionmgr
-
-
-__title__ = 'Copy VG filters'
-__helpurl__ = "https://apex-project.github.io/pyApex/help#copy-vg-filters"
-__doc__ = """Copying filter overrides from selected or active view to chosen view templates. 
-If VG override for this filter already exists in a template it will be updated.
-
-Context: Select or activate a view
-
-Копирует настройки фильтров из настроек "Переопределения видимости/графики" для текущего вида в выбраныне шеблоны видов.
-Если для фильтра уже заданы переопределения в целевом шаблоне, они будут обновлены.
-
-Контекст: Выбранный или активный вид
-"""
-
-PYREVIT_VERSION = versionmgr.get_pyrevit_version()
-
-# if pyrevit is newer than 4.5 (major.minor)
-if PYREVIT_VERSION.major >= 4 and PYREVIT_VERSION.minor >= 5:
-    from pyrevit import script, revit
-    from pyrevit.forms import SelectFromList
-    from pyrevit.revit import doc, uidoc, selection
-    output = script.get_output()
-    logger = script.get_logger()
-    linkify = output.linkify
-    selection = selection.get_selection()
-# otherwise use the older pyrevit api
-else:
-    from scriptutils import logger
-    from scriptutils.userinput import SelectFromList
-    from revitutils import doc, uidoc, selection
 
 selected_ids = selection.element_ids
 
@@ -103,7 +74,6 @@ def get_filter_rules(doc):
     return FilteredElementCollector(doc).WhereElementIsNotElementType()\
                                         .OfClass(type(ElementInstance))\
                                         .ToElementIds()
-
 
 def get_view_templates(doc, view_type=None, sel_set=sel_set):
     allview_templates = \
@@ -203,31 +173,24 @@ def main():
 
     # active_template = doc.GetElement(active_view.ViewTemplateId)
 
-    t = Transaction(doc)
-    t.Start(__title__)
+    with revit.Transaction("Clear Selkcija, Mark and Mark History", revit.doc):
+        for vt in view_checkboxes_sel:
+            if vt.Id == active_view.ViewTemplateId:
+                logger.debug('Current template found')
+                continue
 
-    for vt in view_checkboxes_sel:
-        if vt.Id == active_view.ViewTemplateId:
-            logger.debug('Current template found')
-            continue
+            for filter_element in filter_checkboxes_sel:
+                try:
+                    vt.RemoveFilter(filter_element.Id)
+                    logger.debug('filter %s deleted from template %s' % (filter_element.Id.IntegerValue.ToString(), vt.Name))
+                except:
+                    pass
 
-        for filter_element in filter_checkboxes_sel:
-            try:
-                vt.RemoveFilter(filter_element.Id)
-                logger.debug('filter %s deleted from template %s' % (filter_element.Id.IntegerValue.ToString(), vt.Name))
-            except:
-                pass
-
-            try:
-                fr = active_view.GetFilterOverrides(filter_element.Id)
-                vt.SetFilterOverrides(filter_element.Id, fr)
-            except Exception as e:
-                logger.warning('filter %s was not aplied to view %s\n%s' % (filter_element.Id.IntegerValue.ToString(),
-                                                                            vt.Name, e))
-
-    t.Commit()
-
-    print("Completed")
-
+                try:
+                    fr = active_view.GetFilterOverrides(filter_element.Id)
+                    vt.SetFilterOverrides(filter_element.Id, fr)
+                except Exception as e:
+                    logger.warning('filter %s was not aplied to view %s\n%s' % (filter_element.Id.IntegerValue.ToString(),
+                                                                                vt.Name, e))
 if __name__ == "__main__":
     main()

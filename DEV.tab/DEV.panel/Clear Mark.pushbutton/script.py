@@ -1,5 +1,4 @@
 from pyrevit import revit, DB
-from pyrevit.revit.db import query
 from pyrevit.framework import Guid
 
 curtainWall= DB.FilteredElementCollector(revit.doc).WhereElementIsNotElementType().OfCategory(DB.BuiltInCategory.OST_CurtainWallPanels).ToElements()
@@ -15,11 +14,11 @@ guids = [guidSelekcijaOld, guidSelekcijaNew, guidSelekcijaHistory]
 with revit.Transaction("Clear Selkcija, Mark and Mark History", revit.doc):
     for l in lista:
         for w in l:
-                mark = w.get_Parameter(DB.BuiltInParameter.ALL_MODEL_MARK).Set("")
-                for g in guids:
-                    override = w.get_Parameter(g)
-                    try:
-                        if override:
-                            override.Set("")
-                    except:
-                        pass
+            mark = w.get_Parameter(DB.BuiltInParameter.ALL_MODEL_MARK).Set("")
+            for g in guids:
+                override = w.get_Parameter(g)
+                try:
+                    if override:
+                        override.Set("")
+                except:
+                    pass
