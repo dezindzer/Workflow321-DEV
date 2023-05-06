@@ -1,5 +1,4 @@
 title: Copy filter from view to template
-tooltip: Copying filter overrides from selected or active view to chosen view templates. 
-If VG override for this filter already exists in a template it will be updated.
+tooltip: Copying filter overrides from selected or active view to chosen view templates. If VG override for this filter already exists in a template it will be updated.
 author: pyApex
 edited by: Nikola Marković
